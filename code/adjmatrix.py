@@ -23,6 +23,9 @@ class AdjMatrix:
 
 
     def set_adjvalue(self, m, n, adjvalue):
+        m = m % self.nodecount
+        n = n % self.nodecount
+
         if m >= self.nodecount or n >= self.nodecount:
             sys.exit("Invalid node access.")
 
@@ -32,6 +35,9 @@ class AdjMatrix:
 
 
     def get_adjvalue(self, m, n):
+        m = m % self.nodecount
+        n = n % self.nodecount
+
         if m >= self.nodecount or n >= self.nodecount:
             sys.exit("Invalid node access.")
 

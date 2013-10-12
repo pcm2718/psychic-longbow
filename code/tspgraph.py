@@ -1,7 +1,7 @@
 # Parker Michaelson
 # A01248939
 # parker.michaelson@gmail.com
-# Assignment #2
+# Assignment #3
 
 # This file contains the TSPGraph class. TSPGraph is a class representing
 # "static" information about the graph, information that does not change
@@ -24,7 +24,6 @@ class TSPGraph:
 
     def __init__(self, graphfile="tsp225.txt", nodecount=None):
         self.nodelist = []
-        self.idlookup = []
         self.adjmatrix = None
         self.load_graph(graphfile, nodecount)
         self.generate_adjmatrix()
@@ -48,24 +47,22 @@ class TSPGraph:
 
             self.adjmatrix = AdjMatrix(nodecount)
 
-            startline = random.randint(0, linecount - nodecount)
-            for i in range(0, 6 + startline):
+            for i in range(0, 6):
                 graphfile.next()
 
             for line in graphfile:
                 matchobj = re.match(r"\s{0,2}(?P<nodeid>\d+) (?P<xcoord>\d+\.\d+) (?P<ycoord>\d+\.\d+)", line)
 
                 if matchobj != None:
-                    if int(matchobj.group('nodeid'))-startline-1 >= nodecount:
+                    if int(matchobj.group('nodeid'))-1 >= nodecount:
                         break
                     else:
-                        self.add_node(int(matchobj.group('nodeid')), int(matchobj.group('nodeid'))-startline-1, matchobj.group('xcoord'), matchobj.group('ycoord'))
+                        self.add_node(int(matchobj.group('nodeid'))-1, matchobj.group('xcoord'), matchobj.group('ycoord'))
 
 
 
-    def add_node(self, nodeid, nodeindex, xcoord, ycoord):
-        self.nodelist.append([int(nodeindex), float(xcoord), float(ycoord)])
-        self.idlookup.append(nodeid)
+    def add_node(self, nodeid, xcoord, ycoord):
+        self.nodelist.append([int(nodeid), float(xcoord), float(ycoord)])
 
 
 
