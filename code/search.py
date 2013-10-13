@@ -16,26 +16,27 @@ from tspgraph import TSPGraph
 
 class State:
 
-    def __init__(self, graph, visit_list=[], prevcosts=[]):
+    def __init__(self, graph, visit_list=None, prevcosts=[]):
         self.graph = graph
         self.prevcosts = prevcosts
 
-        if visit_list == []:
+        self.visit_list=[]
+        if visit_list == None:
             for x in graph.nodelist:
-                visit_list.append(x[0])
-            random.shuffle(visit_list)
-        self.visit_list = visit_list[:]
+                self.visit_list.append(x[0])
+            random.shuffle(self.visit_list)
+        else:
+            self.visit_list = visit_list[:]
 
         self.cost = 0
         for i in range(0, len(self.visit_list)-1):
-            self.cost += graph.adjmatrix.get_adjvalue(visit_list[i], visit_list[i+1])
-        self.cost += graph.adjmatrix.get_adjvalue(visit_list[-1], visit_list[0])
+            self.cost += graph.adjmatrix.get_adjvalue(self.visit_list[i], self.visit_list[i+1])
+        self.cost += graph.adjmatrix.get_adjvalue(self.visit_list[-1], self.visit_list[0])
 
 
 
     def apply_op(self, op):
-        visit_list = op(self.visit_list)
-        return State(self.graph, visit_list, self.prevcosts + [self.cost])
+        return State(self.graph, op(self.visit_list), self.prevcosts + [self.cost])
 
 
 
@@ -51,10 +52,11 @@ class SolutionSearch:
         for i in range(0, maxittr+1):
             print ""
             s = func(graph, ops, pow(2, i))
-            print "Iterations: " + str(pow(2, i))
-            print ""
             print func.__name__ + ":"
-            print s.visit_list
+            print "Index: " + str(i)
+            print "Iterations: " + str(pow(2, i))
+            print "Checksum: " + str(sum(s.visit_list))
+            print "Visit List: " + str(s.visit_list)
             print "Final Cost: " + str(s.cost)
             #print "Previous Costs: " + str(s.prevcosts)
             print ""
@@ -63,32 +65,34 @@ class SolutionSearch:
 
 
     def generate_prob_1(self, func, ops, maxittr, outfile_name):
+        infolist = []
+
         for k in range(5, 225, 5):
             graph = TSPGraph(self.graphfile, k)
 
-            #outfile = open(outfile_name, 'w')
+            timelist = []
+            for i in range(0, 5):
+                with Timer() as t:
+                    s = func(graph, ops, pow(2, maxittr))
 
-            #timelist = []
-            with Timer() as t:
+                print ""
                 s = func(graph, ops, pow(2, maxittr))
+                print func.__name__ + ":"
+                print "Index: " + str(k)
+                print "Iterations: " + str(pow(2, maxittr))
+                print "Checksum: " + str(sum(s.visit_list))
+                print "Time: " + str(t.msecs)
+                print "Visit List: " + str(s.visit_list)
+                print "Final Cost: " + str(s.cost)
 
-            #infolist.append([i, s.visited_list])
+                timelist.append(t.msecs/5.0)
 
-            print ""
-            print func.__name__ + ":"
-            print "Nodes: " + str(len(graph.nodelist))
-            print "Iterations: " + str(pow(2, maxittr))
-            print "Visit Order: " + str(s.visit_list)
-            print "Final Cost: " + str(s.cost)
-            print "Time: " + str(t.secs)
-            print ""
+            infolist.append([str(k), str(sum(timelist))])
 
-        #for s in statelist:
-            #s = map(lambda x : str(graph.nodelist[x][1]) + ' ' + str(graph.nodelist[x][2]) + '\n', s)
-
-            #for t in s:
-                #outfile.write(t)
-            #outfile.write('\n\n')
+        outfile = open(outfile_name, 'w')
+        for x in infolist:
+            outfile.write(infolist[0] + ' ' + infolist[1] + '\n')
+        outfile.close()
 
 
 
@@ -137,37 +141,42 @@ class SolutionSearch:
 
 
 
-    def twoopt(self, visit_list):
+    def rand_subset(self, visit_list):
         cpy = visit_list[:]
 
-        i = random.randint(0, len(cpy)-1)
-        j = random.randint(0, len(cpy)-1)
+        length = random.randint(2, min(20, len(visit_list)))
+        if len(visit_list) == length:
+            start = 0
+        else:
+            start = random.randint(0, len(visit_list)-length)
 
-        i_0 = cpy[i]
-        i_1 = cpy[i+1]
-        j_0 = cpy[j]
-        j_1 = cpy[j+1]
-
-        cpy[i+1] = j_1
-        cpy[j+1] = i_1
+        tmp = cpy[start:start+length]
+        random.shuffle(tmp)
+        cpy[start:start+length] = tmp
 
         return cpy
 
- 
 
-    def five_cycle(self, visit_list):
+
+    def reverse_subset(self, visit_list):
         cpy = visit_list[:]
 
-        nodelist = []
-        for i in range(0, 5):
-            nodelist.append(random.randint(0, len(cpy)-1))
+        length = random.randint(2, min(20, len(visit_list)))
+        if len(visit_list) == length:
+            start = 0
+        else:
+            start = random.randint(0, len(visit_list)-length)
 
-        for i in nodelist:
-            temp = cpy[i]
-            cpy.remove(temp)
-            cpy.append(temp)
+        tmp = cpy[start:start+length]
+        tmp.reverse()
+        cpy[start:start+length] = tmp
 
         return cpy
+
+
+
+    def shift_subset():
+        pass
 
 
 
@@ -224,6 +233,7 @@ class SolutionSearch:
 s = SolutionSearch()
 graph = TSPGraph("tsp225.txt", 225)
 
-#s.search(s.first_choice_search, graph, [s.swap_nodes], 20)
-#s.search(s.simulated_annealing_search, graph, [s.swap_nodes], 20)
-s.generate_prob_1(s.first_choice_search, [s.swap_nodes], 15, "timedata.dat")
+#s.search(s.first_choice_search, graph, [s.swap_nodes, s.rand_subset, s.reverse_subset], 20)
+#s.search(s.simulated_annealing_search, graph, [s.swap_nodes, s.rand_subset, s.reverse_subset], 20)
+s.generate_prob_1(s.first_choice_search, [s.swap_nodes, s.rand_subset, s.reverse_subset], 15, "fctimedata.dat")
+s.generate_prob_1(s.simulated_annealing_search, [s.swap_nodes, s.rand_subset, s.reverse_subset], 15, "satimedata.dat")
