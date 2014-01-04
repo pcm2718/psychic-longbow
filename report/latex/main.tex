@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage{homework}
+\usepackage{graphicx}
+
+\begin{document}
+
+\hwtitle{ {\tt psychic\_longbow}: another solver for the Traveling Salesman Problem}{CS 5600}{Parker Michaelson}
+
+\namesection{Introduction}
+
+To quote the {\tt psychic\_archer} report:
+
+\begin{quote}
+The Traveling Salesman Problem (TSP) is a classic problem in computer science with many immediate theoretical and practical applications.
+In its original statement, it takes the form of a traveling salesman attempting to find the shortest route through a group of cities which visits each city exactly once {\it and} returns to the city in which the salesman started.
+More formally the solution to the TSP is the cheapest Hamiltonian cycle through a complete graph, with each node having a defined ``cost'' in-between itself and all other nodes. \\
+\end{quote}
+
+Using classical (non-AI) methods, the TSP is an NP-hard problem, with a solution time of \BigO{n!}.
+By comparison, the AI techniques used in {\tt psychic\_longbow} generally do not find the optimum solution.
+Instead, the hill-climbing AI algorithms used in {\tt psychic\_longbow} are given a time budget in which the algorithm is guaranteed to terminate.
+Many possible solutions are then iteratively examined, each one derived from the last using an operator.
+At the end of the time budget (or possibly sooner depending on the specific algorithm), the algorithm returns the best solution yet found.
+The primary difference between algorithms is the manner in which each solution is derived from the previous.
+
+{\tt psychic\_longbow} contains the implementation of the hill-climbing and simulated-annealing algorithms, with three operators.
+
+\end{document}
